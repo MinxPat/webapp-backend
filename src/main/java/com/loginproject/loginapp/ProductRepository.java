@@ -9,7 +9,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByCategory(String category);
 
     // Find products by name (case-insensitive search)
-    List<Product> findByProNameContainingIgnoreCase(String pro_name);
+    List<Product> findByProNameContainingIgnoreCase(String proName);
 
     // Find products cheaper than or equal to a given price
     List<Product> findByPriceLessThanEqual(double price);
@@ -17,13 +17,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Find products more expensive than or equal to a given price
     List<Product> findByPriceGreaterThanEqual(double price);
 
-    //Find products in a price range
+    // Find products in a price range
     List<Product> findByPriceBetween(double minPrice, double maxPrice);
 
-    //Find all products that have quantity greater than the given value 
+    // Find all products that have quantity greater than the given value
     List<Product> findByQuantityGreaterThan(int minQuantity);
 
-    //Find all products that have quantity less than the given value 
+    // Find all products that have quantity less than the given value
     List<Product> findByQuantityLessThan(int maxQuantity);
 }
+
 

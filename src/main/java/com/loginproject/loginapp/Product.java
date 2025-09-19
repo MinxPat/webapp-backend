@@ -1,5 +1,6 @@
 package com.loginproject.loginapp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,19 +13,22 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "pro_id")
     private Long pro_id;
 
-    private String pro_name;     // Product name
-    private String category;    // Product category
-    private double price;       // Price of product
-    private double discount;    //Discount for product
-    private int quantity;       // Inventory stock
-    private String imagePath;   //path to the image
+    @Column(name = "pro_name")
+    private String proName;
+
+    private String category;
+    private double price;
+    private double discount;
+    private int quantity;
+    private String imagePath;
 
     public Product() {}
 
-    public Product(String pro_name, String category, double price,double discount, int quantity,String imagePath) {
-        this.pro_name = pro_name;
+    public Product(String proName, String category, double price,double discount, int quantity,String imagePath) {
+        this.proName = proName;
         this.category = category;
         this.price = price;
         this.discount=discount;
@@ -32,57 +36,26 @@ public class Product {
         this.imagePath = imagePath;
     }
 
-    // Getters and setters
-    public Long getId() {
-        return pro_id;
-    }
+    public Long getPro_id() { return pro_id; }
+    public void setPro_id(Long pro_id) { this.pro_id = pro_id; }
 
-    public String getName() {
-        return pro_name;
-    }
+    public String getProName() { return proName; }
+    public void setProName(String proName) { this.proName = proName; }
 
-    public void setName(String name) {
-        this.pro_name = name;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public String getCategory() {
-        return category;
-    }
+    public double getDiscount() { return discount; }
+    public void setDiscount(double discount) { this.discount = discount; }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
 
-    public double getDiscount() {
-        return discount;
-    }
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    public void setDiscount(double discount) {
-        this.discount = discount;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getImagePath(){
-        return imagePath;
-    }
-
-    public void setImagePath(String imagePath){
-        this.imagePath=imagePath;
-    }
+    public String getImagePath(){ return imagePath; }
+    public void setImagePath(String imagePath){ this.imagePath=imagePath; }
 }
+
 
