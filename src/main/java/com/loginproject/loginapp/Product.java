@@ -17,15 +17,17 @@ public class Product {
     private String pro_name;     // Product name
     private String category;    // Product category
     private double price;       // Price of product
+    private double discount;    //Discount for product
     private int quantity;       // Inventory stock
     private String imagePath;   //path to the image
 
     public Product() {}
 
-    public Product(String pro_name, String category, double price, int quantity,String imagePath) {
+    public Product(String pro_name, String category, double price,double discount, int quantity,String imagePath) {
         this.pro_name = pro_name;
         this.category = category;
         this.price = price;
+        this.discount=discount;
         this.quantity = quantity;
         this.imagePath = imagePath;
     }
@@ -49,6 +51,14 @@ public class Product {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
     }
 
     public double getPrice() {
