@@ -47,6 +47,7 @@ public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Produ
         product.setName(productDetails.getName());
         product.setCategory(productDetails.getCategory());
         product.setPrice(productDetails.getPrice());
+        product.setDiscount(productDetails.getDiscount());
         product.setQuantity(productDetails.getQuantity());
         product.setImagePath(productDetails.getImagePath());
 
