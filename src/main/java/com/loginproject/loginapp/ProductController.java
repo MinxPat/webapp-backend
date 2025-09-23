@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +20,16 @@ public class ProductController {
 
     // Create a product
     @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
+    public ResponseEntity<?> addProduct(@Valid @RequestBody Product product, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // collect validation errors
+            StringBuilder errors = new StringBuilder();
+            bindingResult.getFieldErrors().forEach(error ->
+                errors.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; ")
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
+        }
+
         Product savedProduct = productRepo.save(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
     }
@@ -39,7 +51,17 @@ public class ProductController {
 
     // Update a product
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
+    public ResponseEntity<?> updateProduct(@PathVariable Long id,
+                                           @Valid @RequestBody Product productDetails,
+                                           BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            StringBuilder errors = new StringBuilder();
+            bindingResult.getFieldErrors().forEach(error ->
+                errors.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; ")
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
+        }
+
         Optional<Product> existingProduct = productRepo.findById(id);
 
         if (existingProduct.isPresent()) {
@@ -49,6 +71,7 @@ public class ProductController {
             product.setPrice(productDetails.getPrice());
             product.setDiscount(productDetails.getDiscount());
             product.setQuantity(productDetails.getQuantity());
+            product.setDescription(productDetails.getDescription());
             product.setImagePath(productDetails.getImagePath());
 
             Product updatedProduct = productRepo.save(product);
@@ -69,5 +92,6 @@ public class ProductController {
         }
     }
 }
+
 
 
