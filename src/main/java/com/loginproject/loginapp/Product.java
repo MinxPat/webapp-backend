@@ -1,11 +1,8 @@
 package com.loginproject.loginapp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "products")
@@ -16,86 +13,104 @@ public class Product {
     @Column(name = "pro_id")
     private Long pro_id;
 
-    @Column(name = "pro_name")
-    private String proName;   //product name
+    @NotNull(message = "Product name cannot be null")
+    @Column(name = "pro_name", nullable = false)
+    private String proName;   // product name
 
-    private String category;  //product category
-    private double price;     //price of a product
-    private double discount;  //Discount for product
-    private int quantity;     //quantity available
-    private String description;   //product description
+    @NotNull(message = "Category cannot be null")
+    @Column(nullable = false)
+    private String category;  // product category
+
+    @NotNull(message = "Price cannot be null")
+    @Min(value = 0, message = "Price cannot be negative")
+    @Column(nullable = false)
+    private double price;     // price of a product
+
+    @Min(value = 0, message = "Discount cannot be negative")
+    @Column(nullable = false, columnDefinition = "double default 0")
+    private double discount = 0.0;  // default = 0
+
+    @NotNull(message = "Quantity cannot be null")
+    @Min(value = 0, message = "Quantity cannot be negative")
+    @Column(nullable = false)
+    private int quantity;     // quantity available
+
+    @Lob
+    private String description;   // product description 
+
     private String imagePath;    // link for the image
 
+    // Constructors
     public Product() {}
 
-    public Product(String proName, String category, double price,double discount, int quantity,String description,String imagePath) {
+    public Product(String proName, String category, double price, double discount,
+                   int quantity, String description, String imagePath) {
         this.proName = proName;
         this.category = category;
         this.price = price;
-        this.discount=discount;
+        this.discount = discount;
         this.quantity = quantity;
-        this.description=description;
+        this.description = description;
         this.imagePath = imagePath;
     }
 
-    public Long getPro_id() { 
-        return pro_id; 
+    // Getters and Setters
+    public Long getPro_id() {
+        return pro_id;
+    }
+    public void setPro_id(Long pro_id) {
+        this.pro_id = pro_id;
     }
 
-    public void setPro_id(Long pro_id) { 
-        this.pro_id = pro_id; 
+    public String getProName() {
+        return proName;
+    }
+    public void setProName(String proName) {
+        this.proName = proName;
     }
 
-    public String getProName() { 
-        return proName; 
+    public String getCategory() {
+        return category;
+    }
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public void setProName(String proName) { 
-        this.proName = proName; 
+    public double getDiscount() {
+        return discount;
+    }
+    public void setDiscount(double discount) {
+        this.discount = discount;
     }
 
-    public String getCategory() { 
-        return category; 
+    public double getPrice() {
+        return price;
+    }
+    public void setPrice(double price) {
+        this.price = price;
     }
 
-    public void setCategory(String category) { 
-        this.category = category; 
+    public int getQuantity() {
+        return quantity;
+    }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    public double getDiscount() { 
-        return discount; 
+    public String getDescription() {
+        return description;
     }
-    public void setDiscount(double discount) { 
-        this.discount = discount; 
-    }
-    
-    public double getPrice() { 
-        return price; 
-    }
-    public void setPrice(double price) { 
-        this.price = price; 
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public int getQuantity() { 
-        return quantity; 
+    public String getImagePath() {
+        return imagePath;
     }
-    public void setQuantity(int quantity) { 
-        this.quantity = quantity; 
-    }
-
-    public String getDescription() { 
-        return description; 
-    }
-    public void setDescription(String description) { 
-        this.description = description; 
-    }
-
-    public String getImagePath(){ 
-        return imagePath; 
-    }
-    public void setImagePath(String imagePath){ 
-        this.imagePath=imagePath; 
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }
+
 
 
