@@ -33,7 +33,12 @@ public class Product {
     @NotNull(message = "Quantity cannot be null")
     @Min(value = 0, message = "Quantity cannot be negative")
     @Column(nullable = false)
-    private int quantity;     // quantity available
+    private int quantity;     // quantity value
+
+    @NotNull(message = "Quantity unit must be provided")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private QuantityUnit quantityUnit; //  only kg, g, ml, l
 
     @Lob
     private String description;   // product description 
@@ -44,12 +49,14 @@ public class Product {
     public Product() {}
 
     public Product(String proName, String category, double price, double discount,
-                   int quantity, String description, String imagePath) {
+                   int quantity, QuantityUnit quantityUnit,
+                   String description, String imagePath) {
         this.proName = proName;
         this.category = category;
         this.price = price;
         this.discount = discount;
         this.quantity = quantity;
+        this.quantityUnit = quantityUnit;
         this.description = description;
         this.imagePath = imagePath;
     }
@@ -97,6 +104,13 @@ public class Product {
         this.quantity = quantity;
     }
 
+    public QuantityUnit getQuantityUnit() {
+        return quantityUnit;
+    }
+    public void setQuantityUnit(QuantityUnit quantityUnit) {
+        this.quantityUnit = quantityUnit;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -111,6 +125,11 @@ public class Product {
         this.imagePath = imagePath;
     }
 }
+
+enum QuantityUnit {
+    kg, g, ml, l
+}
+
 
 
 
