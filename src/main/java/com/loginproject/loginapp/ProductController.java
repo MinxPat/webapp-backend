@@ -30,6 +30,11 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
         }
 
+        if (product.getQuantityUnit() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Quantity unit must be one of: kg, g, ml, l");
+        }
+
         Product savedProduct = productRepo.save(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
     }
@@ -62,6 +67,11 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
         }
 
+        if (productDetails.getQuantityUnit() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Quantity unit must be one of: kg, g, ml, l");
+        }
+
         Optional<Product> existingProduct = productRepo.findById(id);
 
         if (existingProduct.isPresent()) {
@@ -71,6 +81,7 @@ public class ProductController {
             product.setPrice(productDetails.getPrice());
             product.setDiscount(productDetails.getDiscount());
             product.setQuantity(productDetails.getQuantity());
+            product.setQuantityUnit(productDetails.getQuantityUnit());
             product.setDescription(productDetails.getDescription());
             product.setImagePath(productDetails.getImagePath());
 
