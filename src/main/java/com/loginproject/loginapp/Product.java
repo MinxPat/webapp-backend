@@ -43,14 +43,17 @@ public class Product {
     @Lob
     private String description;   // product description 
 
-    private String imagePath;    // link for the image
+    
+    @Lob
+    @Column(name = "image_data", columnDefinition = "LONGBLOB")
+    private byte[] imageData;
 
     // Constructors
     public Product() {}
 
     public Product(String proName, String category, double price, double discount,
                    int quantity, QuantityUnit quantityUnit,
-                   String description, String imagePath) {
+                   String description, byte[] imageData) {
         this.proName = proName;
         this.category = category;
         this.price = price;
@@ -58,7 +61,7 @@ public class Product {
         this.quantity = quantity;
         this.quantityUnit = quantityUnit;
         this.description = description;
-        this.imagePath = imagePath;
+        this.imageData = imageData;
     }
 
     // Getters and Setters
@@ -118,17 +121,19 @@ public class Product {
         this.description = description;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public byte[] getImageData() {
+        return imageData;
     }
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setImageData(byte[] imageData) {
+        this.imageData = imageData;
     }
 }
 
 enum QuantityUnit {
     kg, g, ml, l
 }
+
+
 
 
 
