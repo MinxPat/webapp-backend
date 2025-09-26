@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +17,7 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepo;
 
-    // Create a product with image upload
+    // Create a product 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addProduct(
             @RequestParam("proName") String proName,
@@ -30,23 +27,9 @@ public class ProductController {
             @RequestParam("quantityUnit") String quantityUnit,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "discount", required = false, defaultValue = "0.0") double discount,
-            @RequestParam(value = "image", required = false) MultipartFile image) {
+            @RequestParam("imagePath") String imagePath) {
 
-        String imagePath = null;
-        if (image != null && !image.isEmpty()) {
-            try {
-                Path uploadDir = Paths.get("uploads");
-                if (!Files.exists(uploadDir)) {
-                    Files.createDirectories(uploadDir);
-                }
-                String fileName = image.getOriginalFilename();
-                Files.copy(image.getInputStream(), uploadDir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
-                imagePath = "/uploads/" + fileName; // ✅ save relative URL instead of system path
-            } catch (IOException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image upload failed");
-            }
-        }
-
+       
         Product product = new Product();
         product.setProName(proName);
         product.setCategory(category);
@@ -94,7 +77,7 @@ public class ProductController {
             @RequestParam("quantityUnit") String quantityUnit,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "discount", required = false, defaultValue = "0.0") double discount,
-            @RequestParam(value = "image", required = false) MultipartFile image) {
+            @RequestParam("imagePath") String imagePath) {
 
         Optional<Product> existingProduct = productRepo.findById(id);
         if (existingProduct.isEmpty()) {
@@ -102,22 +85,6 @@ public class ProductController {
         }
 
         Product product = existingProduct.get();
-
-        String imagePath = product.getImagePath();
-        if (image != null && !image.isEmpty()) {
-            try {
-                Path uploadDir = Paths.get("uploads");
-                if (!Files.exists(uploadDir)) {
-                    Files.createDirectories(uploadDir);
-                }
-                String fileName = image.getOriginalFilename();
-                Files.copy(image.getInputStream(), uploadDir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
-                imagePath = "/uploads/" + fileName; // ✅ update with relative URL
-            } catch (IOException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image upload failed");
-            }
-        }
-
         product.setProName(proName);
         product.setCategory(category);
         product.setPrice(price);
