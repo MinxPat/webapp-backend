@@ -2,11 +2,13 @@ package com.loginproject.loginapp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
-import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,22 +20,49 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepo;
 
-    // Create a product
-    @PostMapping
-    public ResponseEntity<?> addProduct(@Valid @RequestBody Product product, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            // collect validation errors
-            StringBuilder errors = new StringBuilder();
-            bindingResult.getFieldErrors().forEach(error ->
-                errors.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; ")
-            );
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
+    // Create a product with image upload
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addProduct(
+            @RequestParam("proName") String proName,
+            @RequestParam("category") String category,
+            @RequestParam("price") double price,
+            @RequestParam("quantity") int quantity,
+            @RequestParam("quantityUnit") String quantityUnit,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "discount", required = false, defaultValue = "0.0") double discount,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+
+        String imagePath = null;
+        if (image != null && !image.isEmpty()) {
+            try {
+                Path uploadDir = Paths.get("uploads");
+                if (!Files.exists(uploadDir)) {
+                    Files.createDirectories(uploadDir);
+                }
+                String fileName = image.getOriginalFilename();
+                Files.copy(image.getInputStream(), uploadDir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+                imagePath = "/uploads/" + fileName; // ✅ save relative URL instead of system path
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image upload failed");
+            }
         }
 
-        if (product.getQuantityUnit() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Quantity unit must be one of: kg, g, ml, l");
+        Product product = new Product();
+        product.setProName(proName);
+        product.setCategory(category);
+        product.setPrice(price);
+        product.setQuantity(quantity);
+
+        // Convert String -> Enum safely
+        try {
+            product.setQuantityUnit(QuantityUnit.valueOf(quantityUnit));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid quantityUnit. Allowed values: kg, g, ml, l");
         }
+
+        product.setDescription(description);
+        product.setDiscount(discount);
+        product.setImagePath(imagePath);
 
         Product savedProduct = productRepo.save(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
@@ -55,41 +84,58 @@ public class ProductController {
     }
 
     // Update a product
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long id,
-                                           @Valid @RequestBody Product productDetails,
-                                           BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            bindingResult.getFieldErrors().forEach(error ->
-                errors.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; ")
-            );
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors.toString());
-        }
-
-        if (productDetails.getQuantityUnit() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Quantity unit must be one of: kg, g, ml, l");
-        }
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProduct(
+            @PathVariable Long id,
+            @RequestParam("proName") String proName,
+            @RequestParam("category") String category,
+            @RequestParam("price") double price,
+            @RequestParam("quantity") int quantity,
+            @RequestParam("quantityUnit") String quantityUnit,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "discount", required = false, defaultValue = "0.0") double discount,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
 
         Optional<Product> existingProduct = productRepo.findById(id);
-
-        if (existingProduct.isPresent()) {
-            Product product = existingProduct.get();
-            product.setProName(productDetails.getProName());
-            product.setCategory(productDetails.getCategory());
-            product.setPrice(productDetails.getPrice());
-            product.setDiscount(productDetails.getDiscount());
-            product.setQuantity(productDetails.getQuantity());
-            product.setQuantityUnit(productDetails.getQuantityUnit());
-            product.setDescription(productDetails.getDescription());
-            product.setImagePath(productDetails.getImagePath());
-
-            Product updatedProduct = productRepo.save(product);
-            return ResponseEntity.ok(updatedProduct);
-        } else {
+        if (existingProduct.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
         }
+
+        Product product = existingProduct.get();
+
+        String imagePath = product.getImagePath();
+        if (image != null && !image.isEmpty()) {
+            try {
+                Path uploadDir = Paths.get("uploads");
+                if (!Files.exists(uploadDir)) {
+                    Files.createDirectories(uploadDir);
+                }
+                String fileName = image.getOriginalFilename();
+                Files.copy(image.getInputStream(), uploadDir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+                imagePath = "/uploads/" + fileName; // ✅ update with relative URL
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Image upload failed");
+            }
+        }
+
+        product.setProName(proName);
+        product.setCategory(category);
+        product.setPrice(price);
+        product.setQuantity(quantity);
+
+        // Convert String -> Enum safely
+        try {
+            product.setQuantityUnit(QuantityUnit.valueOf(quantityUnit));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid quantityUnit. Allowed values: kg, g, ml, l");
+        }
+
+        product.setDescription(description);
+        product.setDiscount(discount);
+        product.setImagePath(imagePath);
+
+        Product updatedProduct = productRepo.save(product);
+        return ResponseEntity.ok(updatedProduct);
     }
 
     // Delete a product
@@ -103,6 +149,3 @@ public class ProductController {
         }
     }
 }
-
-
-
