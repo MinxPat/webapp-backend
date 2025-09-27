@@ -24,26 +24,37 @@ public class Product {
     @NotNull(message = "Price cannot be null")
     @Min(value = 0, message = "Price cannot be negative")
     @Column(nullable = false)
-    private double price;     // price of a product
+    private double price;     // price per display quantity
 
     @Min(value = 0, message = "Discount cannot be negative")
-    @Column(nullable = false, columnDefinition = "double default 0")
-    private double discount = 0.0;  // default = 0
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private int discount = 0;  // default = 0 (percentage or flat)
 
-    @NotNull(message = "Quantity cannot be null")
-    @Min(value = 0, message = "Quantity cannot be negative")
+    // 🔹 Total stock (e.g., 50 packets, 20 bottles, 100 kg)
+    @NotNull(message = "Total stock quantity is required")
+    @Min(value = 0, message = "Stock quantity cannot be negative")
     @Column(nullable = false)
-    private int quantity;     // quantity value
+    private int stockQuantity; // how many units received from supplier
 
-    @NotNull(message = "Quantity unit must be provided")
+    @NotNull(message = "Stock unit type must be provided")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
-    private QuantityUnit quantityUnit; //  only kg, g, ml, l
+    @Column(nullable = false, length = 15)
+    private UnitType stockUnit;  
+
+    
+    @NotNull(message = "Display quantity is required")
+    @Min(value = 0, message = "Display quantity cannot be negative")
+    @Column(nullable = false)
+    private int displayQuantity; // how much per unit displayed
+
+    @NotNull(message = "Display unit type must be provided")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 15)
+    private UnitType displayUnit;  
 
     @Lob
     private String description;   // product description 
 
-    
     @Lob
     @Column(name = "image_data", columnDefinition = "LONGBLOB")
     private byte[] imageData;
@@ -51,15 +62,18 @@ public class Product {
     // Constructors
     public Product() {}
 
-    public Product(String proName, String category, double price, double discount,
-                   int quantity, QuantityUnit quantityUnit,
+    public Product(String proName, String category, double price, int discount,
+                   int stockQuantity, UnitType stockUnit,
+                   int displayQuantity, UnitType displayUnit,
                    String description, byte[] imageData) {
         this.proName = proName;
         this.category = category;
         this.price = price;
         this.discount = discount;
-        this.quantity = quantity;
-        this.quantityUnit = quantityUnit;
+        this.stockQuantity = stockQuantity;
+        this.stockUnit = stockUnit;
+        this.displayQuantity = displayQuantity;
+        this.displayUnit = displayUnit;
         this.description = description;
         this.imageData = imageData;
     }
@@ -86,13 +100,6 @@ public class Product {
         this.category = category;
     }
 
-    public double getDiscount() {
-        return discount;
-    }
-    public void setDiscount(double discount) {
-        this.discount = discount;
-    }
-
     public double getPrice() {
         return price;
     }
@@ -100,18 +107,39 @@ public class Product {
         this.price = price;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getDiscount() {
+        return discount;
     }
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setDiscount(int discount) {
+        this.discount = discount;
     }
 
-    public QuantityUnit getQuantityUnit() {
-        return quantityUnit;
+    public int getStockQuantity() {
+        return stockQuantity;
     }
-    public void setQuantityUnit(QuantityUnit quantityUnit) {
-        this.quantityUnit = quantityUnit;
+    public void setStockQuantity(int stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public UnitType getStockUnit() {
+        return stockUnit;
+    }
+    public void setStockUnit(UnitType stockUnit) {
+        this.stockUnit = stockUnit;
+    }
+
+    public int getDisplayQuantity() {
+        return displayQuantity;
+    }
+    public void setDisplayQuantity(int displayQuantity) {
+        this.displayQuantity = displayQuantity;
+    }
+
+    public UnitType getDisplayUnit() {
+        return displayUnit;
+    }
+    public void setDisplayUnit(UnitType displayUnit) {
+        this.displayUnit = displayUnit;
     }
 
     public String getDescription() {
@@ -129,12 +157,8 @@ public class Product {
     }
 }
 
-enum QuantityUnit {
-    kg, g, ml, l
+
+enum UnitType {
+    KG, G, ML, L,
+    PACKET, BOTTLE, CAN
 }
-
-
-
-
-
-
