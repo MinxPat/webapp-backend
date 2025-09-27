@@ -21,10 +21,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByPriceBetween(double minPrice, double maxPrice);
 
     // Find all products that have quantity greater than the given value
-    List<Product> findByQuantityGreaterThan(int minQuantity);
+    List<Product> findByDisplayQuantityGreaterThan(int mindisplayQuantity);
 
     // Find all products that have quantity less than the given value
-    List<Product> findByQuantityLessThan(int maxQuantity);
+    List<Product> findByDisplayQuantityLessThan(int maxdisplayQuantity);
 }
 
 
