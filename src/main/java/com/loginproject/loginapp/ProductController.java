@@ -25,28 +25,44 @@ public class ProductController {
             @RequestParam("proName") String proName,
             @RequestParam("category") String category,
             @RequestParam("price") double price,
-            @RequestParam("quantity") int quantity,
-            @RequestParam("quantityUnit") String quantityUnit,
+            @RequestParam(value = "discount", required = false, defaultValue = "0") int discount,
+
+            // Stock info
+            @RequestParam("stockQuantity") int stockQuantity,
+            @RequestParam("stockUnit") String stockUnit,
+
+            // Display info
+            @RequestParam("displayQuantity") int displayQuantity,
+            @RequestParam("displayUnit") String displayUnit,
+
             @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "discount", required = false, defaultValue = "0.0") double discount,
             @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
 
         Product product = new Product();
         product.setProName(proName);
         product.setCategory(category);
         product.setPrice(price);
-        product.setQuantity(quantity);
+        product.setDiscount(discount);
 
-        // Convert String -> Enum safely
+        // Stock unit validation
         try {
-            product.setQuantityUnit(QuantityUnit.valueOf(quantityUnit));
+            product.setStockUnit(UnitType.valueOf(stockUnit.toUpperCase()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body("Invalid quantityUnit. Allowed values: kg, g, ml, l");
+                    .body("Invalid stockUnit. Allowed values: KG, G, ML, L, PACKET, BOTTLE, CAN");
         }
+        product.setStockQuantity(stockQuantity);
+
+        // Display unit validation
+        try {
+            product.setDisplayUnit(UnitType.valueOf(displayUnit.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body("Invalid displayUnit. Allowed values: KG, G, ML, L, PACKET, BOTTLE, CAN");
+        }
+        product.setDisplayQuantity(displayQuantity);
 
         product.setDescription(description);
-        product.setDiscount(discount);
 
         // Save actual image binary
         if (imageFile != null && !imageFile.isEmpty()) {
@@ -91,10 +107,15 @@ public class ProductController {
             @RequestParam("proName") String proName,
             @RequestParam("category") String category,
             @RequestParam("price") double price,
-            @RequestParam("quantity") int quantity,
-            @RequestParam("quantityUnit") String quantityUnit,
+            @RequestParam(value = "discount", required = false, defaultValue = "0") int discount,
+
+            @RequestParam("stockQuantity") int stockQuantity,
+            @RequestParam("stockUnit") String stockUnit,
+
+            @RequestParam("displayQuantity") int displayQuantity,
+            @RequestParam("displayUnit") String displayUnit,
+
             @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "discount", required = false, defaultValue = "0.0") double discount,
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) throws IOException {
 
         Optional<Product> existingProduct = productRepo.findById(id);
@@ -106,19 +127,26 @@ public class ProductController {
         product.setProName(proName);
         product.setCategory(category);
         product.setPrice(price);
-        product.setQuantity(quantity);
-
-        try {
-            product.setQuantityUnit(QuantityUnit.valueOf(quantityUnit));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body("Invalid quantityUnit. Allowed values: kg, g, ml, l");
-        }
-
-        product.setDescription(description);
         product.setDiscount(discount);
 
-        // Update image if a new file is uploaded
+        try {
+            product.setStockUnit(UnitType.valueOf(stockUnit.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body("Invalid stockUnit. Allowed values: KG, G, ML, L, PACKET, BOTTLE, CAN");
+        }
+        product.setStockQuantity(stockQuantity);
+
+        try {
+            product.setDisplayUnit(UnitType.valueOf(displayUnit.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body("Invalid displayUnit. Allowed values: KG, G, ML, L, PACKET, BOTTLE, CAN");
+        }
+        product.setDisplayQuantity(displayQuantity);
+
+        product.setDescription(description);
+
         if (imageFile != null && !imageFile.isEmpty()) {
             product.setImageData(imageFile.getBytes());
         }
